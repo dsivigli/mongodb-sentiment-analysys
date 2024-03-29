@@ -5,7 +5,7 @@ Parameters:
   PartnerEventSource:
     Description: Name of Partner Event Source
     Type: String
-    Default: aws.partner/mongodb.com/stitch.trigger/6450bc7aab8dc7c38a56b03e
+    Default: aws.partner/mongodb.com/stitch.trigger/6606ca6a6c0a445929f109b0
 Globals:
   Function:
     Timeout: 3
@@ -13,10 +13,16 @@ Resources:
   myeventfunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://mongodb-demo-x/reviewanalysis.py
-      Handler: index.handler
-      Runtime: nodejs12.x
+      CodeUri: lambdafunction/
+      Handler: reviewanalysis.lambda_handler
+      Runtime: python3.12
       FunctionName: myeventfunction
+      Policies:
+        Statement:
+            - Effect: Allow
+              Action: comprehend:*
+              Resource: "*"
+
     Metadata:
       SamResourceId: myeventfunction
   PartnerEventBus:
