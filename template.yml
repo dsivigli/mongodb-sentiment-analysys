@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: EventBridge Lambda and MongoDB Atlas
+Parameters:
+  PartnerEventSource:
+    Description: Name of Partner Event Source
+    Type: String
+    Default: aws.partner/mongodb.com/stitch.trigger/6450bc7aab8dc7c38a56b03e
+Globals:
+  Function:
+    Timeout: 3
+Resources:
+  myeventfunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://mongodb-demo-x/reviewanalysis.py
+      Handler: index.handler
+      Runtime: nodejs12.x
+      FunctionName: myeventfunction
+    Metadata:
+      SamResourceId: myeventfunction
+  PartnerEventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      EventSourceName:
+        Ref: PartnerEventSource
+      Name:
+        Ref: PartnerEventSource
+    Metadata:
+      SamResourceId: PartnerEventBus
+  myeventrule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Test Events Rule
+      EventBusName:
+        Ref: PartnerEventSource
+      EventPattern:
+        account:
+        - Ref: AWS::AccountId
+      Name: myeventrule
+      State: ENABLED
+      Targets:
+      - Arn:
+          Fn::GetAtt:
+          - myeventfunction
+          - Arn
+        Id: idmyeventrule
+    Metadata:
+      SamResourceId: myeventrule
+  PermissionForEventsToInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Ref: myeventfunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn:
+        Fn::GetAtt:
+        - myeventrule
+        - Arn
+    Metadata:
+      SamResourceId: PermissionForEventsToInvokeLambda
