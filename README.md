@@ -32,4 +32,7 @@ Choose a stack name, input the partner event source name, and allow SAM to creat
 * When the rule validates an event, it invokes the Lambda function. This will invoke Amaozn Comprehend API to perform sentiment analysis on the review. The result is returned. This information can be used to trigger other actions, it can be logged, it can be saved in another MongoDB collection to perform other analysis.
 
 
+==============================================
+
+
 Copyright 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
